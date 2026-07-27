@@ -1,0 +1,22 @@
+{
+  "name": "Carteirinha Virtual da Faculdade",
+  "short_name": "Carteirinha",
+  "description": "Sua carteirinha de estudante virtual, sempre à mão.",
+  "start_url": "/Universidade-Cruzeiro-do-Sul/",
+  "scope": "/Universidade-Cruzeiro-do-Sul/",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#0d63ac",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

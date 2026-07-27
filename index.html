@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carteirinha Virtual</title>
+    <link rel="manifest" href="manifest.json">
+     <meta name="theme-color" content="#0d63ac"/> 
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
+
+        .card-container {
+            position: relative;
+            overflow: hidden;
+            /* Gradiente de azul para branco para o fundo da carteirinha */
+            background-color:#e4f2fd;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        .background-circle {
+            position: absolute;
+            background-color: #dbeafe; /* Azul claro sutil para os círculos */
+            opacity: 0.6; /* Opacidade para efeito de marca d'água */
+            border-radius: 9999px; /* Torna o elemento um círculo */
+            z-index: 0;
+        }
+        
+        /* Círculo superior esquerdo */
+        .circle-1 {
+            width: 250px;
+            height: 250px;
+            top: -120px;
+            left: -80px;
+        }
+
+        /* Círculo inferior direito */
+        .circle-3 {
+            width: 240px;
+            height: 240px;
+            bottom: -120px;
+            right: -110px;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header class="bg-white shadow-sm sticky top-0">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="#" class="text-gray-600 hover:text-gray-800">
+                <ion-icon name="arrow-back-outline" class="text-2xl"></ion-icon>
+            </a>
+            <h1 class="text-lg font-semibold text-gray-700 uppercase tracking-wider">
+                Carteirinha Virtual
+            </h1>
+            <div class="w-8"></div>
+        </nav>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-sm">
+            <div class="card-container">
+                <div class="background-circle circle-1"></div>
+                <div class="background-circle circle-3"></div>
+
+                <div class="card-content p-6 flex flex-col items-center">
+                    <div class="w-full">
+                         <img src="logo_faculdade.png" alt="Logo da Faculdade" class="h-12">
+                    </div>
+
+                    <div class="mt-4 mb-4">
+                        <img src="jef.jpg" alt="Foto do Aluno" class="w-28 h-28 rounded-2xl border-4 border-white object-cover shadow-lg">
+                    </div>
+
+                    <div class="text-center w-full">
+                        <h2 class="text-xl font-bold text-gray-800">Jeferson Sotero dos Santos</h2>
+                        <p class="text-gray-500 mt-1">Engenharia da Computação</p>
+
+                        <div class="flex justify-between items-center mt-4 text-sm w-full px-2">
+                            <span class="text-gray-600 font-medium">RGM 04511341-7</span>
+                            <span class="text-gray-600 font-medium">VAL: 12/2029</span>
+                        </div>
+                    </div>
+
+                    <hr class="w-full my-6 border-gray-200">
+
+                    <div class="text-center">
+                        <p class="font-semibold text-gray-700">CRUZEIRO DO SUL - GRADUAÇÃO EAD</p>
+                        <a href="#" class="mt-4 inline-flex items-center gap-2 text-[#0d63ac] font-medium hover:underline">
+                            <ion-icon name="information-circle-outline" class="text-xl"></ion-icon>
+                            Validar carteirinha
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <button class="w-full bg-[#0d63ac] text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-[#0b5394] focus-outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors">
+                    Solicitar carteirinha física
+                </button>
+            </div>
+        </div>
+    </main>
+    <script>
+        // Verifica se o navegador suporta service workers
+        if ('serviceWorker' in navigator) {
+            // Tenta registrar o arquivo sw.js
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('Service Worker registrado com sucesso:', registration);
+                })
+                .catch(error => {
+                    console.log('Falha ao registrar o Service Worker:', error);
+                });
+        }
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
