@@ -1,45 +1,98 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carteirinha Virtual</title>
-    <link rel="manifest" href="manifest.json">
-     <meta name="theme-color" content="#0d63ac"/> 
 
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <title>Carteirinha Virtual</title>
+
+    <!-- Configurações do PWA -->
+    <link rel="manifest" href="./manifest.json?v=4">
+    <meta name="theme-color" content="#0d63ac">
+    <meta name="background-color" content="#f3f4f6">
+
+    <!-- Configurações para dispositivos Apple -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="default"
+    >
+    <meta
+        name="apple-mobile-web-app-title"
+        content="Carteirinha"
+    >
+    <link rel="apple-touch-icon" href="./icon-192x192.png">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Fonte Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- Ionicons -->
+    <script
+        type="module"
+        src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+
+    <script
+        nomodule
+        src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+    ></script>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f3f4f6; /* bg-gray-100 */
+            min-height: 100vh;
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
         }
 
         .card-container {
             position: relative;
             overflow: hidden;
-            /* Gradiente de azul para branco para o fundo da carteirinha */
-            background-color:#e4f2fd;
+            background-color: #e4f2fd;
             border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            box-shadow:
+                0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
 
         .background-circle {
             position: absolute;
-            background-color: #dbeafe; /* Azul claro sutil para os círculos */
-            opacity: 0.6; /* Opacidade para efeito de marca d'água */
-            border-radius: 9999px; /* Torna o elemento um círculo */
             z-index: 0;
+            background-color: #dbeafe;
+            opacity: 0.6;
+            border-radius: 9999px;
+            pointer-events: none;
         }
-        
-        /* Círculo superior esquerdo */
+
         .circle-1 {
             width: 250px;
             height: 250px;
@@ -47,65 +100,394 @@
             left: -80px;
         }
 
-        /* Círculo inferior direito */
         .circle-3 {
             width: 240px;
             height: 240px;
-            bottom: -120px;
             right: -110px;
+            bottom: -120px;
         }
 
         .card-content {
             position: relative;
             z-index: 1;
         }
+
+        /* Janela de instalação */
+
+        .install-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: rgba(15, 23, 42, 0.68);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .install-overlay.visible {
+            display: flex;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .install-modal {
+            position: relative;
+            width: 100%;
+            max-width: 390px;
+            overflow: hidden;
+            padding: 28px 24px 24px;
+            text-align: center;
+            background-color: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+            animation: modalUp 0.3s ease-out;
+        }
+
+        .install-icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 18px;
+            overflow: hidden;
+            background-color: #e4f2fd;
+            border-radius: 22px;
+            box-shadow: 0 8px 20px rgba(13, 99, 172, 0.16);
+        }
+
+        .install-icon-container img {
+            width: 68px;
+            height: 68px;
+            object-fit: contain;
+            border-radius: 15px;
+        }
+
+        .install-modal h2 {
+            margin: 0;
+            color: #1f2937;
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .install-modal p {
+            margin: 10px 0 22px;
+            color: #64748b;
+            font-size: 0.93rem;
+            line-height: 1.6;
+        }
+
+        .install-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            width: 100%;
+            min-height: 50px;
+            padding: 12px 18px;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: #0d63ac;
+            border: none;
+            border-radius: 12px;
+            transition:
+                background-color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .install-button:hover {
+            background-color: #0b5394;
+        }
+
+        .install-button:active {
+            transform: scale(0.98);
+        }
+
+        .install-later-button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            color: #64748b;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+
+        .install-later-button:hover {
+            color: #334155;
+        }
+
+        .ios-instructions {
+            display: none;
+            margin-top: 18px;
+            padding: 14px;
+            text-align: left;
+            color: #475569;
+            font-size: 0.87rem;
+            line-height: 1.6;
+            background-color: #f1f5f9;
+            border-radius: 12px;
+        }
+
+        .ios-instructions.visible {
+            display: block;
+        }
+
+        .ios-instructions strong {
+            color: #1e293b;
+        }
+
+        .ios-instructions ion-icon {
+            margin: 0 3px;
+            color: #0d63ac;
+            font-size: 1.15rem;
+            vertical-align: middle;
+        }
+
+        /* Botão permanente de instalação */
+
+        .floating-install-button {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 48px;
+            padding: 12px 18px;
+            color: #ffffff;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: #0d63ac;
+            border: none;
+            border-radius: 9999px;
+            box-shadow: 0 8px 24px rgba(13, 99, 172, 0.35);
+        }
+
+        .floating-install-button.visible {
+            display: flex;
+        }
+
+        .floating-install-button:active {
+            transform: scale(0.97);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes modalUp {
+            from {
+                opacity: 0;
+                transform: translateY(28px) scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (display-mode: standalone) {
+            .floating-install-button,
+            .install-overlay {
+                display: none !important;
+            }
+        }
     </style>
 </head>
+
 <body class="flex flex-col min-h-screen">
 
-    <header class="bg-white shadow-sm sticky top-0">
-        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="#" class="text-gray-600 hover:text-gray-800">
-                <ion-icon name="arrow-back-outline" class="text-2xl"></ion-icon>
-            </a>
-            <h1 class="text-lg font-semibold text-gray-700 uppercase tracking-wider">
+    <!-- Janela exibida quando o PWA puder ser instalado -->
+    <div
+        id="installOverlay"
+        class="install-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="installTitle"
+        aria-describedby="installDescription"
+    >
+        <div class="install-modal">
+            <div class="install-icon-container">
+                <img
+                    src="./icon-192x192.png"
+                    alt="Ícone da Carteirinha Virtual"
+                >
+            </div>
+
+            <h2 id="installTitle">
+                Instalar Carteirinha
+            </h2>
+
+            <p id="installDescription">
+                Instale a Carteirinha Virtual no seu dispositivo para
+                acessar rapidamente, inclusive pelo ícone da tela inicial.
+            </p>
+
+            <button
+                id="installButton"
+                class="install-button"
+                type="button"
+            >
+                <ion-icon
+                    name="download-outline"
+                    class="text-xl"
+                ></ion-icon>
+
+                Instalar agora
+            </button>
+
+            <div
+                id="iosInstructions"
+                class="ios-instructions"
+            >
+                No iPhone ou iPad, toque no botão
+
+                <ion-icon name="share-outline"></ion-icon>
+
+                <strong>Compartilhar</strong> e depois selecione
+
+                <strong>Adicionar à Tela de Início</strong>.
+            </div>
+
+            <button
+                id="installLaterButton"
+                class="install-later-button"
+                type="button"
+            >
+                Agora não
+            </button>
+        </div>
+    </div>
+
+    <!-- Botão alternativo caso o usuário feche a janela -->
+    <button
+        id="floatingInstallButton"
+        class="floating-install-button"
+        type="button"
+        aria-label="Instalar Carteirinha Virtual"
+    >
+        <ion-icon
+            name="download-outline"
+            class="text-xl"
+        ></ion-icon>
+
+        Instalar aplicativo
+    </button>
+
+    <header class="bg-white shadow-sm sticky top-0 z-20">
+        <nav
+            class="container mx-auto px-4 py-4 flex items-center justify-between"
+        >
+            <button
+                type="button"
+                class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-800"
+                aria-label="Voltar"
+                onclick="voltarPagina()"
+            >
+                <ion-icon
+                    name="arrow-back-outline"
+                    class="text-2xl"
+                ></ion-icon>
+            </button>
+
+            <h1
+                class="text-lg font-semibold text-gray-700 uppercase tracking-wider text-center"
+            >
                 Carteirinha Virtual
             </h1>
+
             <div class="w-8"></div>
         </nav>
     </header>
 
-    <main class="flex-grow flex flex-col items-center justify-center p-4">
+    <main
+        class="flex-grow flex flex-col items-center justify-center p-4"
+    >
         <div class="w-full max-w-sm">
             <div class="card-container">
                 <div class="background-circle circle-1"></div>
                 <div class="background-circle circle-3"></div>
 
-                <div class="card-content p-6 flex flex-col items-center">
+                <div
+                    class="card-content p-6 flex flex-col items-center"
+                >
                     <div class="w-full">
-                         <img src="logo_faculdade.png" alt="Logo da Faculdade" class="h-12">
+                        <img
+                            src="./logo_faculdade.png?v=4"
+                            alt="Logo da Faculdade"
+                            class="h-12 max-w-full object-contain"
+                        >
                     </div>
 
                     <div class="mt-4 mb-4">
-                        <img src="jef.jpg" alt="Foto do Aluno" class="w-28 h-28 rounded-2xl border-4 border-white object-cover shadow-lg">
+                        <img
+                            src="./jef.jpg?v=4"
+                            alt="Foto da aluna Ariane Dantas"
+                            class="w-28 h-28 rounded-2xl border-4 border-white object-cover shadow-lg"
+                        >
                     </div>
 
                     <div class="text-center w-full">
-                        <h2 class="text-xl font-bold text-gray-800">Ariane Dantas</h2>
-                        <p class="text-gray-500 mt-1">Pedagogia</p>
+                        <h2 class="text-xl font-bold text-gray-800">
+                            Ariane Dantas
+                        </h2>
 
-                        <div class="flex justify-between items-center mt-4 text-sm w-full px-2">
-                            <span class="text-gray-600 font-medium">RGM 02292456-2</span>
-                            <span class="text-gray-600 font-medium">VAL: 04/2028</span>
+                        <p class="text-gray-500 mt-1">
+                            Pedagogia
+                        </p>
+
+                        <div
+                            class="flex justify-between items-center mt-4 text-sm w-full px-2 gap-3"
+                        >
+                            <span
+                                class="text-gray-600 font-medium text-left"
+                            >
+                                RGM 02292456-2
+                            </span>
+
+                            <span
+                                class="text-gray-600 font-medium text-right whitespace-nowrap"
+                            >
+                                VAL: 04/2028
+                            </span>
                         </div>
                     </div>
 
                     <hr class="w-full my-6 border-gray-200">
 
                     <div class="text-center">
-                        <p class="font-semibold text-gray-700">CRUZEIRO DO SUL - GRADUAÇÃO EAD</p>
-                        <a href="#" class="mt-4 inline-flex items-center gap-2 text-[#0d63ac] font-medium hover:underline">
-                            <ion-icon name="information-circle-outline" class="text-xl"></ion-icon>
+                        <p class="font-semibold text-gray-700">
+                            CRUZEIRO DO SUL - GRADUAÇÃO EAD
+                        </p>
+
+                        <a
+                            href="#"
+                            class="mt-4 inline-flex items-center gap-2 text-[#0d63ac] font-medium hover:underline"
+                        >
+                            <ion-icon
+                                name="information-circle-outline"
+                                class="text-xl"
+                            ></ion-icon>
+
                             Validar carteirinha
                         </a>
                     </div>
@@ -113,32 +495,268 @@
             </div>
 
             <div class="mt-8">
-                <button class="w-full bg-[#0d63ac] text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-[#0b5394] focus-outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors">
+                <button
+                    type="button"
+                    class="w-full bg-[#0d63ac] text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-[#0b5394] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
+                >
                     Solicitar carteirinha física
                 </button>
             </div>
         </div>
     </main>
+
     <script>
-        // Verifica se o navegador suporta service workers
-        if ('serviceWorker' in navigator) {
-            // Tenta registrar o arquivo sw.js
-            navigator.serviceWorker.register('sw.js')
-                .then(registration => {
-                    console.log('Service Worker registrado com sucesso:', registration);
-                })
-                .catch(error => {
-                    console.log('Falha ao registrar o Service Worker:', error);
-                });
+        /*
+         * Evento de instalação do PWA.
+         *
+         * O navegador fornece o evento beforeinstallprompt quando
+         * identifica que o site atende aos requisitos de instalação.
+         */
+        let deferredInstallPrompt = null;
+
+        const installOverlay =
+            document.getElementById("installOverlay");
+
+        const installButton =
+            document.getElementById("installButton");
+
+        const installLaterButton =
+            document.getElementById("installLaterButton");
+
+        const floatingInstallButton =
+            document.getElementById("floatingInstallButton");
+
+        const iosInstructions =
+            document.getElementById("iosInstructions");
+
+        /**
+         * Verifica se o aplicativo já está sendo executado
+         * como PWA instalado.
+         */
+        function isAppInstalled() {
+            const standaloneMode = window.matchMedia(
+                "(display-mode: standalone)"
+            ).matches;
+
+            const iosStandalone =
+                window.navigator.standalone === true;
+
+            return standaloneMode || iosStandalone;
+        }
+
+        /**
+         * Verifica se o dispositivo utiliza iOS.
+         */
+        function isIOSDevice() {
+            return /iphone|ipad|ipod/i.test(
+                window.navigator.userAgent
+            );
+        }
+
+        /**
+         * Exibe a janela personalizada de instalação.
+         */
+        function showInstallWindow() {
+            if (isAppInstalled()) {
+                return;
+            }
+
+            installOverlay.classList.add("visible");
+            document.body.style.overflow = "hidden";
+        }
+
+        /**
+         * Fecha a janela, mas mantém o botão de instalação.
+         */
+        function closeInstallWindow() {
+            installOverlay.classList.remove("visible");
+            document.body.style.overflow = "";
+
+            if (!isAppInstalled()) {
+                floatingInstallButton.classList.add("visible");
+            }
+        }
+
+        /**
+         * Solicita a instalação nativa do PWA.
+         */
+        async function installPWA() {
+            if (isAppInstalled()) {
+                closeInstallWindow();
+                floatingInstallButton.classList.remove("visible");
+                return;
+            }
+
+            /*
+             * No Chrome, Edge e navegadores compatíveis,
+             * usa o evento nativo de instalação.
+             */
+            if (deferredInstallPrompt) {
+                try {
+                    deferredInstallPrompt.prompt();
+
+                    const choiceResult =
+                        await deferredInstallPrompt.userChoice;
+
+                    console.log(
+                        "Resultado da instalação:",
+                        choiceResult.outcome
+                    );
+
+                    deferredInstallPrompt = null;
+                    closeInstallWindow();
+
+                    if (choiceResult.outcome === "accepted") {
+                        floatingInstallButton.classList.remove(
+                            "visible"
+                        );
+                    }
+                } catch (error) {
+                    console.error(
+                        "Erro ao solicitar a instalação:",
+                        error
+                    );
+                }
+
+                return;
+            }
+
+            /*
+             * O Safari do iPhone não fornece o mesmo botão
+             * automático. Exibe as instruções manuais.
+             */
+            if (isIOSDevice()) {
+                iosInstructions.classList.add("visible");
+
+                installButton.style.display = "none";
+
+                installDescription.textContent =
+                    "Para instalar no iPhone ou iPad, siga as instruções abaixo.";
+
+                return;
+            }
+
+            /*
+             * Caso o navegador ainda não tenha liberado
+             * o evento de instalação.
+             */
+            installDescription.textContent =
+                "A instalação ainda não está disponível. Aguarde alguns segundos ou use a opção de instalação do seu navegador.";
+
+            floatingInstallButton.classList.add("visible");
+        }
+
+        /*
+         * Captura o evento antes que o navegador apresente
+         * sua interface padrão.
+         */
+        window.addEventListener(
+            "beforeinstallprompt",
+            (event) => {
+                event.preventDefault();
+
+                deferredInstallPrompt = event;
+
+                floatingInstallButton.classList.add("visible");
+
+                /*
+                 * Exibe imediatamente a janela personalizada.
+                 */
+                showInstallWindow();
+            }
+        );
+
+        /*
+         * Detecta quando a instalação foi concluída.
+         */
+        window.addEventListener("appinstalled", () => {
+            deferredInstallPrompt = null;
+
+            installOverlay.classList.remove("visible");
+            floatingInstallButton.classList.remove("visible");
+
+            document.body.style.overflow = "";
+
+            console.log(
+                "Carteirinha Virtual instalada com sucesso."
+            );
+        });
+
+        installButton.addEventListener(
+            "click",
+            installPWA
+        );
+
+        floatingInstallButton.addEventListener(
+            "click",
+            () => {
+                showInstallWindow();
+            }
+        );
+
+        installLaterButton.addEventListener(
+            "click",
+            closeInstallWindow
+        );
+
+        /*
+         * No iPhone, exibe a janela assim que a página abrir,
+         * pois não existe o mesmo evento beforeinstallprompt.
+         */
+        window.addEventListener("load", () => {
+            if (isAppInstalled()) {
+                return;
+            }
+
+            if (isIOSDevice()) {
+                iosInstructions.classList.add("visible");
+
+                installButton.style.display = "none";
+
+                installDescription.textContent =
+                    "Instale a Carteirinha Virtual na tela inicial do seu iPhone ou iPad.";
+
+                setTimeout(showInstallWindow, 600);
+            }
+        });
+
+        /**
+         * Ação do botão voltar.
+         */
+        function voltarPagina() {
+            if (window.history.length > 1) {
+                window.history.back();
+            }
+        }
+
+        /*
+         * Registro do Service Worker.
+         */
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", async () => {
+                try {
+                    const registration =
+                        await navigator.serviceWorker.register(
+                            "./sw.js",
+                            {
+                                updateViaCache: "none"
+                            }
+                        );
+
+                    await registration.update();
+
+                    console.log(
+                        "Service Worker registrado:",
+                        registration
+                    );
+                } catch (error) {
+                    console.error(
+                        "Falha ao registrar o Service Worker:",
+                        error
+                    );
+                }
+            });
         }
     </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
