@@ -1,74 +1,336 @@
 // sw.js
 
-// Define um nome e versão para o nosso cache.
-// IMPORTANTE: Se você fizer alterações futuras nos arquivos, mude a versão (ex: v4, v5)
-// para forçar o navegador a atualizar o cache.
-const CACHE_NAME = 'carteirinha-virtual-v3';
+/*
+ * Sempre altere a versão do cache quando publicar mudanças.
+ * Exemplo: v4, v5, v6...
+ */
+const CACHE_NAME = "carteirinha-virtual-v4";
 
-// Define o caminho base do projeto no GitHub Pages.
-const BASE_PATH = '/Universidade-Cruzeiro-do-Sul/';
+/*
+ * Caminho do projeto no GitHub Pages.
+ */
+const BASE_PATH = "/Universidade-Cruzeiro-do-Sul/";
 
-// Lista completa de todos os arquivos necessários para o app funcionar offline.
-// Os caminhos foram corrigidos para a estrutura do seu projeto.
-const URLS_TO_CACHE = [
-  BASE_PATH,
-  `${BASE_PATH}index.html`,
-  `${BASE_PATH}manifest.json`,
-  `${BASE_PATH}logo_faculdade.png`,
-  `${BASE_PATH}jef.jpg`,
-  `${BASE_PATH}icon-192x192.png`,
-  `${BASE_PATH}icon-512x512.png`,
-  'https://cdn.tailwindcss.com',
-  'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap',
-  'https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js',
-  'https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js'
+/*
+ * Arquivos locais essenciais para o funcionamento offline.
+ *
+ * Evitamos colocar arquivos externos no cache.addAll(),
+ * pois a falha de apenas um deles poderia impedir a instalação
+ * correta do Service Worker.
+ */
+const LOCAL_FILES = [
+    BASE_PATH,
+    `${BASE_PATH}index.html`,
+    `${BASE_PATH}manifest.json`,
+    `${BASE_PATH}logo_faculdade.png`,
+    `${BASE_PATH}jef.jpg`,
+    `${BASE_PATH}icon-192x192.png`,
+    `${BASE_PATH}icon-512x512.png`
 ];
 
-// Evento 'install': é disparado quando o Service Worker é instalado.
-// Ele abre o cache e salva todos os arquivos da lista.
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Cache aberto. Adicionando arquivos ao cache...');
-        return cache.addAll(URLS_TO_CACHE);
-      })
-      .catch(err => {
-          console.error('Falha ao adicionar arquivos ao cache durante a instalação:', err);
-      })
-  );
+/*
+ * Evento de instalação.
+ *
+ * Salva os arquivos locais no cache e força o novo
+ * Service Worker a assumir sem aguardar o antigo fechar.
+ */
+self.addEventListener("install", (event) => {
+    console.log(
+        "Service Worker: instalando nova versão..."
+    );
+
+    self.skipWaiting();
+
+    event.waitUntil(
+        caches
+            .open(CACHE_NAME)
+            .then((cache) => {
+                console.log(
+                    "Service Worker: adicionando arquivos ao cache."
+                );
+
+                return cache.addAll(LOCAL_FILES);
+            })
+            .catch((error) => {
+                console.error(
+                    "Service Worker: erro ao criar o cache:",
+                    error
+                );
+
+                throw error;
+            })
+    );
 });
 
-// Evento 'fetch': é disparado para cada requisição que a página faz.
-// A estratégia aqui é "cache-first": primeiro tenta buscar do cache, se não encontrar, busca na rede.
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Se a resposta for encontrada no cache, a retorna.
-        if (response) {
-          return response;
+/*
+ * Evento de ativação.
+ *
+ * Remove versões antigas do cache e faz o novo
+ * Service Worker controlar imediatamente as páginas abertas.
+ */
+self.addEventListener("activate", (event) => {
+    console.log(
+        "Service Worker: ativando nova versão..."
+    );
+
+    event.waitUntil(
+        Promise.all([
+            caches.keys().then((cacheNames) => {
+                return Promise.all(
+                    cacheNames.map((cacheName) => {
+                        if (cacheName !== CACHE_NAME) {
+                            console.log(
+                                "Service Worker: removendo cache antigo:",
+                                cacheName
+                            );
+
+                            return caches.delete(cacheName);
+                        }
+
+                        return Promise.resolve();
+                    })
+                );
+            }),
+
+            self.clients.claim()
+        ])
+    );
+});
+
+/*
+ * Evento de requisição.
+ *
+ * Para páginas HTML, utiliza Network First:
+ * primeiro procura a versão mais recente na internet.
+ *
+ * Para imagens, scripts e outros arquivos, utiliza Cache First:
+ * primeiro tenta carregar o arquivo armazenado.
+ */
+self.addEventListener("fetch", (event) => {
+    const request = event.request;
+
+    /*
+     * Ignora requisições que não sejam GET.
+     */
+    if (request.method !== "GET") {
+        return;
+    }
+
+    const requestUrl = new URL(request.url);
+
+    /*
+     * Evita interferir em extensões do navegador,
+     * chrome-extension e outros protocolos.
+     */
+    if (
+        requestUrl.protocol !== "http:" &&
+        requestUrl.protocol !== "https:"
+    ) {
+        return;
+    }
+
+    /*
+     * Requisições de navegação representam páginas HTML.
+     */
+    const isPageRequest =
+        request.mode === "navigate" ||
+        request.destination === "document";
+
+    if (isPageRequest) {
+        event.respondWith(networkFirst(request));
+        return;
+    }
+
+    event.respondWith(cacheFirst(request));
+});
+
+/*
+ * Estratégia Network First.
+ *
+ * Tenta carregar a página atualizada pela internet.
+ * Caso não haja conexão, utiliza a versão salva no cache.
+ */
+async function networkFirst(request) {
+    try {
+        const networkResponse = await fetch(request, {
+            cache: "no-store"
+        });
+
+        if (networkResponse && networkResponse.ok) {
+            const cache = await caches.open(CACHE_NAME);
+
+            await cache.put(
+                request,
+                networkResponse.clone()
+            );
         }
-        // Se não, faz a requisição à rede.
-        return fetch(event.request);
-      })
-  );
-});
 
-// Evento 'activate': é disparado quando o novo Service Worker é ativado.
-// Ele é perfeito para limpar caches antigos e garantir que o usuário tenha a versão mais recente.
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          // Se o nome de um cache for diferente do cache atual, ele é deletado.
-          if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker: Limpando cache antigo:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
+        return networkResponse;
+    } catch (error) {
+        console.warn(
+            "Service Worker: sem conexão. Carregando página do cache."
+        );
+
+        const cachedResponse =
+            await caches.match(request);
+
+        if (cachedResponse) {
+            return cachedResponse;
+        }
+
+        const cachedIndex =
+            await caches.match(
+                `${BASE_PATH}index.html`
+            );
+
+        if (cachedIndex) {
+            return cachedIndex;
+        }
+
+        return new Response(
+            `
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta
+                            name="viewport"
+                            content="width=device-width, initial-scale=1.0"
+                        >
+                        <title>Sem conexão</title>
+
+                        <style>
+                            body {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                min-height: 100vh;
+                                margin: 0;
+                                padding: 24px;
+                                font-family: Arial, sans-serif;
+                                text-align: center;
+                                color: #374151;
+                                background-color: #f3f4f6;
+                            }
+
+                            .offline-container {
+                                max-width: 380px;
+                                padding: 28px;
+                                background-color: #ffffff;
+                                border-radius: 16px;
+                                box-shadow:
+                                    0 10px 25px rgba(0, 0, 0, 0.1);
+                            }
+
+                            h1 {
+                                color: #0d63ac;
+                            }
+                        </style>
+                    </head>
+
+                    <body>
+                        <div class="offline-container">
+                            <h1>Você está sem conexão</h1>
+
+                            <p>
+                                Não foi possível carregar a Carteirinha
+                                Virtual neste momento.
+                            </p>
+
+                            <p>
+                                Verifique sua conexão com a internet
+                                e tente novamente.
+                            </p>
+                        </div>
+                    </body>
+                </html>
+            `,
+            {
+                status: 503,
+                statusText: "Offline",
+                headers: {
+                    "Content-Type":
+                        "text/html; charset=UTF-8"
+                }
+            }
+        );
+    }
+}
+
+/*
+ * Estratégia Cache First.
+ *
+ * Tenta carregar imagens, scripts, fontes e outros recursos
+ * pelo cache. Caso não encontre, busca na internet e armazena.
+ */
+async function cacheFirst(request) {
+    const cachedResponse =
+        await caches.match(request);
+
+    if (cachedResponse) {
+        return cachedResponse;
+    }
+
+    try {
+        const networkResponse =
+            await fetch(request);
+
+        /*
+         * Apenas respostas válidas são armazenadas.
+         */
+        if (
+            networkResponse &&
+            (
+                networkResponse.ok ||
+                networkResponse.type === "opaque"
+            )
+        ) {
+            const cache =
+                await caches.open(CACHE_NAME);
+
+            await cache.put(
+                request,
+                networkResponse.clone()
+            );
+        }
+
+        return networkResponse;
+    } catch (error) {
+        console.warn(
+            "Service Worker: recurso indisponível:",
+            request.url
+        );
+
+        /*
+         * Para imagens indisponíveis, retorna uma resposta vazia.
+         * Isso evita que o Service Worker apresente um erro interno.
+         */
+        if (request.destination === "image") {
+            return new Response("", {
+                status: 404,
+                statusText: "Imagem indisponível"
+            });
+        }
+
+        return new Response(
+            "Recurso indisponível.",
+            {
+                status: 503,
+                statusText: "Offline"
+            }
+        );
+    }
+}
+
+/*
+ * Permite que a página envie uma mensagem para solicitar
+ * atualização imediata do Service Worker.
+ */
+self.addEventListener("message", (event) => {
+    if (
+        event.data &&
+        event.data.type === "SKIP_WAITING"
+    ) {
+        self.skipWaiting();
+    }
 });
