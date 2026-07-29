@@ -1,22 +1,82 @@
 {
+  "id": "/Universidade-Cruzeiro-do-Sul/",
   "name": "Carteirinha Virtual da Faculdade",
   "short_name": "Carteirinha",
   "description": "Sua carteirinha de estudante virtual, sempre à mão.",
-  "start_url": "/Universidade-Cruzeiro-do-Sul/",
+
+  "start_url": "/Universidade-Cruzeiro-do-Sul/index.html",
   "scope": "/Universidade-Cruzeiro-do-Sul/",
+
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+
+  "orientation": "portrait-primary",
+
   "background_color": "#f3f4f6",
   "theme_color": "#0d63ac",
+
+  "lang": "pt-BR",
+  "dir": "ltr",
+
+  "categories": [
+    "education",
+    "utilities"
+  ],
+
   "icons": [
     {
-      "src": "icon-192x192.png",
+      "src": "/Universidade-Cruzeiro-do-Sul/icon-192x192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
-      "src": "icon-512x512.png",
+      "src": "/Universidade-Cruzeiro-do-Sul/icon-512x512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/Universidade-Cruzeiro-do-Sul/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/Universidade-Cruzeiro-do-Sul/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "/Universidade-Cruzeiro-do-Sul/screenshot-mobile.png",
+      "type": "image/png",
+      "sizes": "1080x1920",
+      "form_factor": "narrow",
+      "label": "Tela da Carteirinha Virtual"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Abrir carteirinha",
+      "short_name": "Carteirinha",
+      "description": "Abrir diretamente a carteirinha virtual",
+      "url": "/Universidade-Cruzeiro-do-Sul/index.html",
+      "icons": [
+        {
+          "src": "/Universidade-Cruzeiro-do-Sul/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
