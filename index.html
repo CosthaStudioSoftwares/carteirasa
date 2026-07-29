@@ -10,9 +10,14 @@
 
     <title>Carteirinha Virtual</title>
 
+    <!-- Caminho exclusivo deste projeto no GitHub Pages -->
+    <base href="/carteirasa/">
+
     <!-- Configurações do PWA -->
-    <link rel="manifest" href="./manifest.json?v=4">
+    <link rel="manifest" href="/carteirasa/manifest.json?v=ariane-2">
     <meta name="theme-color" content="#0d63ac">
+    <meta name="application-name" content="Carteirinha Ariane">
+    <meta name="pwa-project" content="carteirasa-ariane">
     <meta name="background-color" content="#f3f4f6">
 
     <!-- Configurações para dispositivos Apple -->
@@ -25,7 +30,7 @@
         name="apple-mobile-web-app-title"
         content="Carteirinha"
     >
-    <link rel="apple-touch-icon" href="./icon-192x192.png">
+    <link rel="apple-touch-icon" href="/carteirasa/icon-192x192.png?v=ariane-2">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -328,7 +333,7 @@
         <div class="install-modal">
             <div class="install-icon-container">
                 <img
-                    src="./icon-192x192.png"
+                    src="/carteirasa/icon-192x192.png?v=ariane-2"
                     alt="Ícone da Carteirinha Virtual"
                 >
             </div>
@@ -432,7 +437,7 @@
                 >
                     <div class="w-full">
                         <img
-                            src="./logo_faculdade.png?v=4"
+                            src="/carteirasa/logo_faculdade.png?v=ariane-2"
                             alt="Logo da Faculdade"
                             class="h-12 max-w-full object-contain"
                         >
@@ -440,7 +445,7 @@
 
                     <div class="mt-4 mb-4">
                         <img
-                            src="./jef.jpg?v=4"
+                            src="/carteirasa/jef.jpg?v=ariane-2"
                             alt="Foto da aluna Ariane Dantas"
                             class="w-28 h-28 rounded-2xl border-4 border-white object-cover shadow-lg"
                         >
@@ -737,8 +742,9 @@
                 try {
                     const registration =
                         await navigator.serviceWorker.register(
-                            "./sw.js",
+                            "/carteirasa/sw.js?v=ariane-2",
                             {
+                                scope: "/carteirasa/",
                                 updateViaCache: "none"
                             }
                         );
